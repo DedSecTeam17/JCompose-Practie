@@ -1,9 +1,12 @@
-package com.example.composepractice.screens
+package com.example.composepractice.screens.fragments
 
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,6 +23,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,54 +32,133 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.composepractice.Component.SpacerH
 import com.example.composepractice.R
+import com.example.composepractice.utils.AppColors
+import com.example.composepractice.utils.HexToJetpackColor
 
-//H&$8Er1isrd
 
-object HexToJetpackColor {
-    fun getColor(colorString: String): Color {
-        return Color(android.graphics.Color.parseColor("#" + colorString))
+
+@Composable
+fun HomeFragment() {
+    Scaffold(
+        backgroundColor = AppColors.BACKGROUND_COLOR
+
+
+    ) {
+        LazyColumn {
+            item {
+
+                TopNews()
+            }
+            item {
+                BreakingNews()
+            }
+
+        }
     }
 }
 
 @Composable
-fun HomeScreen() {
-    Scaffold(
-        backgroundColor = HexToJetpackColor.getColor("f2f2f2")
+fun BreakingNews() {
+    val items = (1..10).map { "Item $it" }
 
+    Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Breaking News",
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            )
+            Text(text = "More", style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp))
 
-    ) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            TopNews()
         }
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            state = rememberLazyListState()
+
+        ) {
+            itemsIndexed(items = items) { index, item ->
+                HorizntalNewsItem()
+            }
+
+        }
+
+
+    }
+}
+
+@Composable
+fun HorizntalNewsItem(imageUrl : String  = "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1204283040/image_1204283040.jpg?io=getty-c-w750") {
+    Column(modifier = Modifier
+        .padding(all = 10.dp)
+        .width(220.dp)
+        .clickable { }
+        .padding(10.dp)) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "",
+            contentScale = ContentScale.Crop,
+
+            modifier = Modifier
+                .width(200.dp)
+                .height(120.dp)
+                .clip(shape = RoundedCornerShape(10.dp))
+        )
+         SpacerH(sizeInDp = 10f)
+        Text(
+            text = "Displaying a notification with playback controls...",
+            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        )
+        Text(
+            text = "2 min ago",
+            style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+        )
+        Text(
+            text = "By Mohammed Elamin",
+            style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+
+        )
+
     }
 }
 
 @Preview
 @Composable
 fun TopNews() {
-    val topNewsHeight: Int = 400;
-    var sizeImage by remember { mutableStateOf(IntSize.Zero) }
+    val topNewsHeight: Int = 350;
 
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
-        startY = topNewsHeight.toFloat()/3,  // 1/3
+        startY = topNewsHeight.toFloat() / 3,  // 1/3
         endY = topNewsHeight.toFloat()
     )
     return Box(modifier = Modifier
         .fillMaxWidth(1f)
         .height(topNewsHeight.dp), content = {
 
-        Image(
-            painter = painterResource(id = R.drawable.news_img),
+        AsyncImage(
+            model = "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1352477873/image_1352477873.jpg?io=getty-c-w750",
             contentDescription = "",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(topNewsHeight.dp)
-                .clip(shape = RoundedCornerShape(bottomEnd = 40.dp, bottomStart = 40.dp))
+                .clip(shape = RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
         )
-        Box(modifier = Modifier.matchParentSize().clip(RoundedCornerShape(bottomEnd = 40.dp, bottomStart = 40.dp)).background(gradient))
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
+                .background(gradient)
+        )
 
         Column(
             modifier = Modifier
@@ -111,7 +194,6 @@ fun TopNews() {
         }
 
 
-
     })
 }
 
@@ -119,13 +201,14 @@ fun TopNews() {
 fun OpacityButton() {
     return Box(
         Modifier
+            .clickable {
+
+            }
             .padding(all = 10.dp)
             .clip(shape = RoundedCornerShape(20.dp))
             .background(color = Color.White.copy(alpha = 0.6f))
             .padding(all = 10.dp)
-            .clickable {
 
-            }
 
     ) {
 
@@ -136,62 +219,6 @@ fun OpacityButton() {
             style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold)
         )
 
-    }
-}
-
-@Composable
-fun HomeTaps() {
-    val list = listOf(
-        "All", "Sport", "Games", "Political",
-        "All", "Sport", "Games", "Political"
-
-    )
-
-    var selectedIndex by rememberSaveable { mutableStateOf(0) }
-
-    LazyRow() {
-        items(count = list.size, itemContent = { index: Int ->
-            Tap(isSelected = index == selectedIndex, title = list[index], onClick = {
-                selectedIndex = index
-            })
-        })
-    }
-}
-
-
-@Composable
-fun Tap(isSelected: Boolean, title: String, onClick: () -> Unit) {
-    val modifierForContainer: Modifier = if (isSelected)
-        Modifier
-            .clickable {
-                onClick()
-            }
-            .padding(5.dp)
-            .clip(shape = RoundedCornerShape(15.dp))
-            .background(MaterialTheme.colors.primary)
-            .border(0.4.dp, MaterialTheme.colors.primary, shape = RoundedCornerShape(15.dp))
-            .padding(horizontal = 16.dp, vertical = 1.dp)
-    else
-        Modifier
-            .clickable {
-                onClick()
-            }
-            .padding(5.dp)
-            .clip(shape = RoundedCornerShape(15.dp))
-            .background(Color.White)
-            .clip(shape = RoundedCornerShape(15.dp))
-            .border(0.4.dp, MaterialTheme.colors.primary, shape = RoundedCornerShape(15.dp))
-            .padding(horizontal = 16.dp, vertical = 1.dp)
-
-
-    val modifierForTextStyle: TextStyle = if (isSelected)
-        TextStyle(color = Color.White)
-    else
-        TextStyle(color = MaterialTheme.colors.primary)
-
-
-    Box(modifier = modifierForContainer.padding(5.dp)) {
-        Text(text = title, style = modifierForTextStyle)
     }
 }
 
